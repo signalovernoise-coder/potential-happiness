@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useFirebase, useLocalStorage } from '../hooks/useFirebase';
 import './Trekkers.css';
 
 const AVATAR_OPTIONS = [
@@ -7,8 +7,8 @@ const AVATAR_OPTIONS = [
   '⛰️', '🏕️', '🎒', '🧭', '📸', '🌅', '🌟', '🔥',
 ];
 
-export default function Trekkers() {
-  const [trekkers, setTrekkers] = useLocalStorage('trek-trekkers', []);
+export default function Trekkers({ onViewTrekkerDetails }) {
+  const [trekkers, setTrekkers, loading] = useFirebase('trekkers', []);
   const [currentUser, setCurrentUser] = useLocalStorage('trek-current-user', '');
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -80,6 +80,17 @@ export default function Trekkers() {
   };
 
   const currentTrekker = trekkers.find((t) => t.name === currentUser);
+
+  if (loading) {
+    return (
+      <div className="trekkers">
+        <div className="loading-state">
+          <div className="loading-icon">⏳</div>
+          <p>Loading trekkers...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="trekkers">
@@ -198,6 +209,7 @@ export default function Trekkers() {
               trekker={trekker}
               currentUser={currentUser}
               onCongratulate={handleCongratulate}
+              onViewDetails={onViewTrekkerDetails}
             />
           ))}
         </div>
@@ -213,7 +225,7 @@ export default function Trekkers() {
   );
 }
 
-function TrekkerCard({ trekker, currentUser, onCongratulate }) {
+function TrekkerCard({ trekker, currentUser, onCongratulate, onViewDetails }) {
   const congratsCount = (trekker.congratulations || []).length;
   const hasUserCongratulated = (trekker.congratulations || []).some(
     (c) => c.from === currentUser
@@ -234,6 +246,30 @@ function TrekkerCard({ trekker, currentUser, onCongratulate }) {
           <p>{trekker.reason}</p>
         </div>
       )}
+
+      <div className="trekker-links">
+        <button
+          className="trekker-link-btn"
+          onClick={() => onViewDetails && onViewDetails(trekker.name, 'training')}
+        >
+          <span className="link-icon">🎯</span>
+          <span>View Goals & Training</span>
+        </button>
+        <button
+          className="trekker-link-btn"
+          onClick={() => onViewDetails && onViewDetails(trekker.name, 'packing')}
+        >
+          <span className="link-icon">🎒</span>
+          <span>View Packing List</span>
+        </button>
+        <button
+          className="trekker-link-btn"
+          onClick={() => onViewDetails && onViewDetails(trekker.name, 'tasks')}
+        >
+          <span className="link-icon">✓</span>
+          <span>View Tasks</span>
+        </button>
+      </div>
 
       <div className="trekker-actions">
         <button
