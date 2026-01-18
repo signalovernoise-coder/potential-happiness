@@ -1,8 +1,14 @@
 .tasks-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 1.5rem;
+}
+
+.tasks-subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
 }
 
 .tasks-grid {
@@ -21,17 +27,39 @@
   gap: 0.75rem;
 }
 
+.predefined-task {
+  border-left: 4px solid var(--primary);
+}
+
 .task-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
 
+.task-title-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .task-title {
   font-size: 1.1rem;
   color: var(--text);
   margin: 0;
-  flex: 1;
+}
+
+.predefined-badge {
+  background: var(--primary);
+  color: white;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .task-description {
@@ -44,6 +72,11 @@
   font-size: 0.85rem;
   color: var(--secondary);
   font-weight: 500;
+}
+
+.task-due-date.overdue {
+  color: var(--danger);
+  font-weight: 600;
 }
 
 .task-completed {

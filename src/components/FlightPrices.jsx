@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useFirebase } from '../hooks/useFirebase';
 import './FlightPrices.css';
 
 const SEARCH_LINKS = [
@@ -11,22 +11,10 @@ const SEARCH_LINKS = [
     name: 'Skyscanner',
     url: 'https://www.skyscanner.com.au/transport/flights/bne/hba/260317/260322/',
   },
-  {
-    name: 'Qantas',
-    url: 'https://www.qantas.com/au/en/flight-search.html?origin=BNE&destination=HBA&departureDate=2026-03-17&returnDate=2026-03-22',
-  },
-  {
-    name: 'Virgin Australia',
-    url: 'https://www.virginaustralia.com/au/en/book/flights/',
-  },
-  {
-    name: 'Jetstar',
-    url: 'https://www.jetstar.com/au/en/home',
-  },
 ];
 
 export default function FlightPrices() {
-  const [priceHistory, setPriceHistory] = useLocalStorage('trek-flight-prices', []);
+  const [priceHistory, setPriceHistory, loading] = useFirebase('flight-prices', []);
   const [newPrice, setNewPrice] = useState({
     price: '',
     airline: '',
@@ -43,7 +31,6 @@ export default function FlightPrices() {
         ...newPrice,
         price: parseFloat(newPrice.price),
         date: new Date().toISOString(),
-        addedBy: '',
       },
       ...priceHistory,
     ]);
@@ -68,6 +55,17 @@ export default function FlightPrices() {
     ? priceHistory.reduce((sum, p) => sum + p.price, 0) / priceHistory.length
     : null;
 
+  if (loading) {
+    return (
+      <div className="flight-prices">
+        <div className="loading-state">
+          <div className="loading-icon">⏳</div>
+          <p>Loading flight prices...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flight-prices">
       <h2 className="section-title">Flight Price Tracker</h2>
@@ -75,6 +73,9 @@ export default function FlightPrices() {
 
       <div className="card">
         <h3 className="card-title">Quick Search Links</h3>
+        <p className="search-subtitle">
+          These are the most reliable flight search engines that work well for Australian domestic flights
+        </p>
         <div className="search-links">
           {SEARCH_LINKS.map((link) => (
             <a
