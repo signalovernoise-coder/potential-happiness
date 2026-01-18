@@ -75,10 +75,10 @@ const OFFICIAL_ITEMS = [
 ];
 
 const STATUS_OPTIONS = [
-  { value: 'have', label: 'Have', color: 'success' },
-  { value: 'borrow', label: 'Borrow', color: 'info' },
-  { value: 'buy', label: 'Buy', color: 'warning' },
-  { value: 'research', label: 'Research', color: 'secondary' },
+  { value: 'have', label: 'Have', emoji: '✓', color: 'success' },
+  { value: 'borrow', label: 'Borrow', emoji: '🤝', color: 'info' },
+  { value: 'buy', label: 'Buy', emoji: '🛒', color: 'warning' },
+  { value: 'research', label: 'Research', emoji: '🔍', color: 'secondary' },
 ];
 
 export default function PackingList() {
@@ -86,6 +86,8 @@ export default function PackingList() {
   const [newItem, setNewItem] = useState('');
   const [category, setCategory] = useState('');
   const [initialized, setInitialized] = useLocalStorage('trek-packing-initialized', false);
+  const [currentUser, setCurrentUser] = useLocalStorage('trek-packing-user', '');
+  const [tempUserName, setTempUserName] = useState('');
 
   // Initialize with official items on first load
   useEffect(() => {
@@ -133,17 +135,17 @@ export default function PackingList() {
     setCategory('');
   };
 
-  const updateStatus = (itemId, personName, status) => {
-    if (!personName.trim()) return;
+  const updateStatus = (itemId, status) => {
+    if (!currentUser) return;
 
     setPackingList(
       packingList.map((item) => {
         if (item.id === itemId) {
           const statuses = { ...item.statuses };
-          if (statuses[personName] === status) {
-            delete statuses[personName];
+          if (statuses[currentUser] === status) {
+            delete statuses[currentUser];
           } else {
-            statuses[personName] = status;
+            statuses[currentUser] = status;
           }
           return { ...item, statuses };
         }
@@ -156,6 +158,12 @@ export default function PackingList() {
     setPackingList(packingList.filter((item) => item.id !== itemId));
   };
 
+  const handleSetUser = () => {
+    if (tempUserName.trim()) {
+      setCurrentUser(tempUserName.trim());
+    }
+  };
+
   const groupedItems = packingList.reduce((acc, item) => {
     const cat = item.category || 'Optional';
     if (!acc[cat]) acc[cat] = [];
@@ -163,9 +171,61 @@ export default function PackingList() {
     return acc;
   }, {});
 
+  // If no current user, show user selection
+  if (!currentUser) {
+    return (
+      <div className="packing-list">
+        <h2 className="section-title">Three Capes Track - Packing List</h2>
+
+        <div className="card user-selection">
+          <h3 className="card-title">Welcome! Who's packing today?</h3>
+          <p className="user-selection-subtitle">
+            Enter your name to start marking off your packing list items
+          </p>
+          <div className="user-selection-form">
+            <input
+              className="form-input"
+              type="text"
+              value={tempUserName}
+              onChange={(e) => setTempUserName(e.target.value)}
+              placeholder="Enter your name..."
+              onKeyPress={(e) => e.key === 'Enter' && handleSetUser()}
+              autoFocus
+            />
+            <button className="btn btn-primary" onClick={handleSetUser}>
+              Start Packing
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="packing-list">
-      <h2 className="section-title">Three Capes Track - Packing List</h2>
+      <div className="packing-header">
+        <div>
+          <h2 className="section-title">Three Capes Track - Packing List</h2>
+          <p className="packing-user">Packing for: <strong>{currentUser}</strong></p>
+        </div>
+        <button
+          className="btn btn-outline btn-sm"
+          onClick={() => setCurrentUser('')}
+        >
+          Change User
+        </button>
+      </div>
+
+      <div className="status-legend">
+        {STATUS_OPTIONS.map((option) => (
+          <div key={option.value} className="legend-item">
+            <span className={`legend-badge status-${option.color}`}>
+              {option.emoji}
+            </span>
+            <span className="legend-label">{option.label}</span>
+          </div>
+        ))}
+      </div>
 
       <div className="card add-item-form">
         <div className="form-group">
@@ -210,11 +270,12 @@ export default function PackingList() {
               <h3 className="category-title">
                 {cat} ({items.length})
               </h3>
-              <div className="items-list">
+              <div className="items-grid">
                 {items.map((item) => (
-                  <PackingItem
+                  <PackingItemGrid
                     key={item.id}
                     item={item}
+                    currentUser={currentUser}
                     onUpdateStatus={updateStatus}
                     onDelete={deleteItem}
                   />
@@ -228,26 +289,18 @@ export default function PackingList() {
   );
 }
 
-function PackingItem({ item, onUpdateStatus, onDelete }) {
-  const [personName, setPersonName] = useState('');
-  const [showActions, setShowActions] = useState(false);
-
-  const handleStatusClick = (status) => {
-    if (!personName.trim()) {
-      setShowActions(true);
-      return;
-    }
-    onUpdateStatus(item.id, personName, status);
-  };
-
-  const statusEntries = Object.entries(item.statuses || {});
+function PackingItemGrid({ item, currentUser, onUpdateStatus, onDelete }) {
+  const currentStatus = item.statuses?.[currentUser];
+  const otherStatuses = Object.entries(item.statuses || {}).filter(
+    ([name]) => name !== currentUser
+  );
 
   return (
-    <div className="packing-item">
-      <div className="item-header">
-        <span className="item-name">{item.name}</span>
+    <div className="packing-item-grid">
+      <div className="item-header-grid">
+        <span className="item-name-grid">{item.name}</span>
         <button
-          className="btn-icon btn-danger"
+          className="btn-icon-small btn-danger"
           onClick={() => onDelete(item.id)}
           title="Delete item"
         >
@@ -255,51 +308,31 @@ function PackingItem({ item, onUpdateStatus, onDelete }) {
         </button>
       </div>
 
-      {statusEntries.length > 0 && (
-        <div className="status-badges">
-          {statusEntries.map(([name, status]) => {
+      <div className="status-buttons-grid">
+        {STATUS_OPTIONS.map((option) => (
+          <button
+            key={option.value}
+            className={`status-btn ${
+              currentStatus === option.value ? `active status-${option.color}` : ''
+            }`}
+            onClick={() => onUpdateStatus(item.id, option.value)}
+            title={option.label}
+          >
+            <span className="status-emoji">{option.emoji}</span>
+          </button>
+        ))}
+      </div>
+
+      {otherStatuses.length > 0 && (
+        <div className="other-statuses">
+          {otherStatuses.map(([name, status]) => {
             const statusConfig = STATUS_OPTIONS.find((s) => s.value === status);
             return (
-              <span key={name} className={`status-badge status-${statusConfig.color}`}>
-                {name}: {statusConfig.label}
+              <span key={name} className="other-status-badge" title={`${name}: ${statusConfig.label}`}>
+                {name}: {statusConfig.emoji}
               </span>
             );
           })}
-        </div>
-      )}
-
-      {showActions && (
-        <div className="item-actions">
-          <input
-            className="form-input"
-            type="text"
-            value={personName}
-            onChange={(e) => setPersonName(e.target.value)}
-            placeholder="Your name"
-            onKeyPress={(e) => e.key === 'Enter' && setShowActions(false)}
-          />
-          <div className="status-buttons">
-            {STATUS_OPTIONS.map((option) => (
-              <button
-                key={option.value}
-                className={`btn btn-sm btn-status btn-${option.color}`}
-                onClick={() => handleStatusClick(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {!showActions && (
-        <div className="quick-actions">
-          <button
-            className="btn btn-outline btn-sm"
-            onClick={() => setShowActions(true)}
-          >
-            Update Status
-          </button>
         </div>
       )}
     </div>
