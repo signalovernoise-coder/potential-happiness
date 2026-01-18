@@ -1,0 +1,89 @@
+.countdown-card {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.countdown-past {
+  background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+}
+
+.countdown-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.countdown-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.countdown-date {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 1.5rem;
+}
+
+.countdown-message {
+  font-size: 1.2rem;
+  margin: 1rem 0 0 0;
+  opacity: 0.95;
+}
+
+.countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.countdown-item {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 1.25rem 0.75rem;
+  backdrop-filter: blur(10px);
+}
+
+.countdown-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.countdown-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .countdown-card {
+    padding: 1.5rem;
+  }
+
+  .countdown-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .countdown-value {
+    font-size: 2rem;
+  }
+
+  .countdown-label {
+    font-size: 0.8rem;
+  }
+
+  .countdown-title {
+    font-size: 1.5rem;
+  }
+}
