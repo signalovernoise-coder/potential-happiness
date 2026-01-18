@@ -7,16 +7,105 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 1.5rem;
+  gap: 1rem;
 }
 
-.packing-user {
+.packing-subtitle {
   color: var(--text-muted);
-  font-size: 1rem;
-  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
 }
 
-.packing-user strong {
+.packing-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.trekker-select {
+  min-width: 200px;
+}
+
+.print-view {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.print-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.print-header h2 {
+  font-size: 1.75rem;
   color: var(--primary);
+  margin: 0;
+}
+
+.print-header p {
+  color: var(--text-muted);
+  margin: 0.25rem 0 0 0;
+}
+
+.shopping-list-print {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shopping-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.shopping-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.shopping-item:last-child {
+  border-bottom: none;
+}
+
+.checkbox-print {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+}
+
+.item-name-print {
+  flex: 1;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.category-print {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .shopping-list-print {
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .shopping-item {
+    break-inside: avoid;
+  }
 }
 
 .user-selection {

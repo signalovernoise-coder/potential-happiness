@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useFirebase } from '../hooks/useFirebase';
 import './PackingList.css';
 
 // Official Three Capes Track Packing List
@@ -16,13 +16,9 @@ const OFFICIAL_ITEMS = [
   { name: 'Ear plugs', category: 'Essentials' },
   { name: 'Personal toiletries (toothpaste, toothbrush, deodorant, moisturiser)', category: 'Essentials' },
   { name: 'Toilet paper and trowel', category: 'Essentials' },
-
-  // Toiletries
   { name: 'Travel towel (light and quick-dry)', category: 'Toiletries' },
   { name: 'Sunscreen', category: 'Toiletries' },
   { name: 'Insect repellent', category: 'Toiletries' },
-
-  // Food & Water
   { name: 'Water bottle(s) or water bladder (2 litre total capacity)', category: 'Food & Water' },
   { name: 'Lightweight crockery and cutlery (bowl, plate, knife, fork, spoon, mug)', category: 'Food & Water' },
   { name: 'Pocket knife', category: 'Food & Water' },
@@ -33,8 +29,6 @@ const OFFICIAL_ITEMS = [
   { name: 'Hot drinks (tea, coffee, hot chocolate, instant soup)', category: 'Food & Water' },
   { name: 'Tea towel', category: 'Food & Water' },
   { name: 'Rubbish bags', category: 'Food & Water' },
-
-  // Clothing - On the Track
   { name: 'Rain jacket with hood (waterproof, windproof, breathable)', category: 'Clothing - On Track' },
   { name: 'Overpants (waterproof, windproof, breathable)', category: 'Clothing - On Track' },
   { name: 'Light jacket (fleece or woollen/merino)', category: 'Clothing - On Track' },
@@ -47,14 +41,10 @@ const OFFICIAL_ITEMS = [
   { name: 'Gloves', category: 'Clothing - On Track' },
   { name: 'Sun hat', category: 'Clothing - On Track' },
   { name: 'Sunglasses', category: 'Clothing - On Track' },
-
-  // Clothing - For Evenings
   { name: 'Warm jacket (down, fleece or woollen/merino)', category: 'Clothing - Evenings' },
   { name: 'Shirt (long or short-sleeved)', category: 'Clothing - Evenings' },
   { name: 'Warm, long pants', category: 'Clothing - Evenings' },
   { name: 'Lightweight footwear (thongs, sandals or crocs)', category: 'Clothing - Evenings' },
-
-  // Safety
   { name: 'First Aid Kit (bandaids, blister packs, Elastoplast, gauze patches)', category: 'Safety' },
   { name: 'Compression bandage', category: 'Safety' },
   { name: 'Triangular bandage', category: 'Safety' },
@@ -62,8 +52,6 @@ const OFFICIAL_ITEMS = [
   { name: 'Medications (antihistamine, anti-inflammatory, antiseptic cream, paracetamol)', category: 'Safety' },
   { name: 'Personal medication', category: 'Safety' },
   { name: 'Personal identification (licence or passport)', category: 'Safety' },
-
-  // Optional Items
   { name: 'Mobile phone', category: 'Optional' },
   { name: 'Dry bags for spare clothes and sleeping bag', category: 'Optional' },
   { name: 'Thermos flask for hot drink on the track', category: 'Optional' },
@@ -81,28 +69,36 @@ const STATUS_OPTIONS = [
   { value: 'research', label: 'Research', emoji: '🔍', color: 'secondary' },
 ];
 
-export default function PackingList() {
-  const [packingList, setPackingList] = useLocalStorage('trek-packing', []);
+export default function PackingList({ trekkerName }) {
+  const [packingList, setPackingList, loading] = useFirebase('packing-items', []);
+  const [trekkers] = useFirebase('trekkers', []);
+  const [selectedTrekker, setSelectedTrekker] = useState(trekkerName || '');
   const [newItem, setNewItem] = useState('');
   const [category, setCategory] = useState('');
-  const [initialized, setInitialized] = useLocalStorage('trek-packing-initialized', false);
-  const [currentUser, setCurrentUser] = useLocalStorage('trek-packing-user', '');
-  const [tempUserName, setTempUserName] = useState('');
+  const [initialized, setInitialized] = useState(false);
+  const [showPrintView, setShowPrintView] = useState(false);
 
   // Initialize with official items on first load
   useEffect(() => {
-    if (!initialized && packingList.length === 0) {
+    if (!loading && !initialized && packingList.length === 0) {
       const initialItems = OFFICIAL_ITEMS.map((item, index) => ({
         id: Date.now() + index,
         name: item.name,
         category: item.category,
-        statuses: {}, // { personName: 'have' | 'borrow' | 'buy' | 'research' }
+        trekkerStatuses: {}, // { trekkerName: 'have' | 'borrow' | 'buy' | 'research' }
         createdAt: new Date().toISOString(),
       }));
       setPackingList(initialItems);
       setInitialized(true);
     }
-  }, [initialized, packingList.length, setPackingList, setInitialized]);
+  }, [loading, initialized, packingList.length, setPackingList]);
+
+  // Set selected trekker when trekkerName prop changes
+  useEffect(() => {
+    if (trekkerName) {
+      setSelectedTrekker(trekkerName);
+    }
+  }, [trekkerName]);
 
   const categories = [
     ...new Set([
@@ -126,7 +122,7 @@ export default function PackingList() {
         id: Date.now(),
         name: newItem,
         category: category || 'Optional',
-        statuses: {},
+        trekkerStatuses: {},
         createdAt: new Date().toISOString(),
       },
     ]);
@@ -136,18 +132,18 @@ export default function PackingList() {
   };
 
   const updateStatus = (itemId, status) => {
-    if (!currentUser) return;
+    if (!selectedTrekker) return;
 
     setPackingList(
       packingList.map((item) => {
         if (item.id === itemId) {
-          const statuses = { ...item.statuses };
-          if (statuses[currentUser] === status) {
-            delete statuses[currentUser];
+          const trekkerStatuses = { ...item.trekkerStatuses };
+          if (trekkerStatuses[selectedTrekker] === status) {
+            delete trekkerStatuses[selectedTrekker];
           } else {
-            statuses[currentUser] = status;
+            trekkerStatuses[selectedTrekker] = status;
           }
-          return { ...item, statuses };
+          return { ...item, trekkerStatuses };
         }
         return item;
       })
@@ -158,12 +154,6 @@ export default function PackingList() {
     setPackingList(packingList.filter((item) => item.id !== itemId));
   };
 
-  const handleSetUser = () => {
-    if (tempUserName.trim()) {
-      setCurrentUser(tempUserName.trim());
-    }
-  };
-
   const groupedItems = packingList.reduce((acc, item) => {
     const cat = item.category || 'Optional';
     if (!acc[cat]) acc[cat] = [];
@@ -171,31 +161,50 @@ export default function PackingList() {
     return acc;
   }, {});
 
-  // If no current user, show user selection
-  if (!currentUser) {
+  // Get shopping list items (items marked as 'buy' for selected trekker)
+  const shoppingList = packingList.filter(
+    (item) => selectedTrekker && item.trekkerStatuses[selectedTrekker] === 'buy'
+  );
+
+  if (loading) {
     return (
       <div className="packing-list">
-        <h2 className="section-title">Three Capes Track - Packing List</h2>
+        <div className="loading-state">
+          <div className="loading-icon">⏳</div>
+          <p>Loading packing list...</p>
+        </div>
+      </div>
+    );
+  }
 
-        <div className="card user-selection">
-          <h3 className="card-title">Welcome! Who's packing today?</h3>
-          <p className="user-selection-subtitle">
-            Enter your name to start marking off your packing list items
-          </p>
-          <div className="user-selection-form">
-            <input
-              className="form-input"
-              type="text"
-              value={tempUserName}
-              onChange={(e) => setTempUserName(e.target.value)}
-              placeholder="Enter your name..."
-              onKeyPress={(e) => e.key === 'Enter' && handleSetUser()}
-              autoFocus
-            />
-            <button className="btn btn-primary" onClick={handleSetUser}>
-              Start Packing
-            </button>
-          </div>
+  if (showPrintView) {
+    return (
+      <div className="packing-list print-view">
+        <div className="print-header">
+          <h2>Shopping List for {selectedTrekker}</h2>
+          <p>Three Capes Track - March 17, 2026</p>
+          <button className="btn btn-outline no-print" onClick={() => setShowPrintView(false)}>
+            ← Back to Packing List
+          </button>
+          <button className="btn btn-primary no-print" onClick={() => window.print()}>
+            🖨️ Print
+          </button>
+        </div>
+
+        <div className="shopping-list-print">
+          {shoppingList.length === 0 ? (
+            <p>No items marked for purchase.</p>
+          ) : (
+            <ul className="shopping-items">
+              {shoppingList.map((item) => (
+                <li key={item.id} className="shopping-item">
+                  <span className="checkbox-print">☐</span>
+                  <span className="item-name-print">{item.name}</span>
+                  <span className="category-print">({item.category})</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     );
@@ -205,94 +214,126 @@ export default function PackingList() {
     <div className="packing-list">
       <div className="packing-header">
         <div>
-          <h2 className="section-title">Three Capes Track - Packing List</h2>
-          <p className="packing-user">Packing for: <strong>{currentUser}</strong></p>
+          <h2 className="section-title">
+            {trekkerName ? `${trekkerName}'s Packing List` : 'Three Capes Track - Packing List'}
+          </h2>
+          <p className="packing-subtitle">Track your gear preparation</p>
         </div>
-        <button
-          className="btn btn-outline btn-sm"
-          onClick={() => setCurrentUser('')}
-        >
-          Change User
-        </button>
-      </div>
-
-      <div className="status-legend">
-        {STATUS_OPTIONS.map((option) => (
-          <div key={option.value} className="legend-item">
-            <span className={`legend-badge status-${option.color}`}>
-              {option.emoji}
-            </span>
-            <span className="legend-label">{option.label}</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="card add-item-form">
-        <div className="form-group">
-          <label className="form-label">Add Custom Item</label>
-          <div className="add-item-row">
-            <input
-              className="form-input"
-              type="text"
-              value={newItem}
-              onChange={(e) => setNewItem(e.target.value)}
-              placeholder="e.g., Hiking poles, Extra snacks"
-              onKeyPress={(e) => e.key === 'Enter' && addItem()}
-            />
+        <div className="packing-actions">
+          {!trekkerName && (
             <select
-              className="form-select category-select"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              className="form-select trekker-select"
+              value={selectedTrekker}
+              onChange={(e) => setSelectedTrekker(e.target.value)}
             >
-              <option value="">Select category</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
+              <option value="">Select a trekker</option>
+              {trekkers.map((trekker) => (
+                <option key={trekker.name} value={trekker.name}>
+                  {trekker.avatar} {trekker.name}
                 </option>
               ))}
             </select>
-            <button className="btn btn-primary" onClick={addItem}>
-              Add
+          )}
+          {selectedTrekker && shoppingList.length > 0 && (
+            <button
+              className="btn btn-secondary"
+              onClick={() => setShowPrintView(true)}
+            >
+              🛒 Shopping List ({shoppingList.length})
             </button>
-          </div>
+          )}
         </div>
       </div>
 
-      {packingList.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon">🎒</div>
-          <p>Loading official packing list...</p>
+      {!selectedTrekker ? (
+        <div className="card user-selection">
+          <h3 className="card-title">Select a Trekker</h3>
+          <p className="user-selection-subtitle">
+            Choose a trekker from the dropdown above to view their packing status
+          </p>
         </div>
       ) : (
-        <div className="categories">
-          {Object.entries(groupedItems).map(([cat, items]) => (
-            <div key={cat} className="category-section">
-              <h3 className="category-title">
-                {cat} ({items.length})
-              </h3>
-              <div className="items-grid">
-                {items.map((item) => (
-                  <PackingItemGrid
-                    key={item.id}
-                    item={item}
-                    currentUser={currentUser}
-                    onUpdateStatus={updateStatus}
-                    onDelete={deleteItem}
-                  />
-                ))}
+        <>
+          <div className="status-legend">
+            {STATUS_OPTIONS.map((option) => (
+              <div key={option.value} className="legend-item">
+                <span className={`legend-badge status-${option.color}`}>
+                  {option.emoji}
+                </span>
+                <span className="legend-label">{option.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="card add-item-form">
+            <div className="form-group">
+              <label className="form-label">Add Custom Item</label>
+              <div className="add-item-row">
+                <input
+                  className="form-input"
+                  type="text"
+                  value={newItem}
+                  onChange={(e) => setNewItem(e.target.value)}
+                  placeholder="e.g., Hiking poles, Extra snacks"
+                  onKeyPress={(e) => e.key === 'Enter' && addItem()}
+                />
+                <select
+                  className="form-select category-select"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                >
+                  <option value="">Select category</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+                <button className="btn btn-primary" onClick={addItem}>
+                  Add
+                </button>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+
+          {packingList.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-state-icon">🎒</div>
+              <p>Loading official packing list...</p>
+            </div>
+          ) : (
+            <div className="categories">
+              {Object.entries(groupedItems).map(([cat, items]) => (
+                <div key={cat} className="category-section">
+                  <h3 className="category-title">
+                    {cat} ({items.length})
+                  </h3>
+                  <div className="items-grid">
+                    {items.map((item) => (
+                      <PackingItemGrid
+                        key={item.id}
+                        item={item}
+                        selectedTrekker={selectedTrekker}
+                        trekkers={trekkers}
+                        onUpdateStatus={updateStatus}
+                        onDelete={deleteItem}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 }
 
-function PackingItemGrid({ item, currentUser, onUpdateStatus, onDelete }) {
-  const currentStatus = item.statuses?.[currentUser];
-  const otherStatuses = Object.entries(item.statuses || {}).filter(
-    ([name]) => name !== currentUser
+function PackingItemGrid({ item, selectedTrekker, trekkers, onUpdateStatus, onDelete }) {
+  const currentStatus = item.trekkerStatuses?.[selectedTrekker];
+  const otherStatuses = Object.entries(item.trekkerStatuses || {}).filter(
+    ([name]) => name !== selectedTrekker
   );
 
   return (
@@ -327,9 +368,10 @@ function PackingItemGrid({ item, currentUser, onUpdateStatus, onDelete }) {
         <div className="other-statuses">
           {otherStatuses.map(([name, status]) => {
             const statusConfig = STATUS_OPTIONS.find((s) => s.value === status);
+            const trekker = trekkers.find((t) => t.name === name);
             return (
               <span key={name} className="other-status-badge" title={`${name}: ${statusConfig.label}`}>
-                {name}: {statusConfig.emoji}
+                {trekker?.avatar || '👤'} {name}: {statusConfig.emoji}
               </span>
             );
           })}
