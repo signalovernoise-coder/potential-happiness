@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import Tasks from './components/Tasks';
 import Flights from './components/Flights';
+import FlightPrices from './components/FlightPrices';
 import PackingList from './components/PackingList';
 import Chat from './components/Chat';
 import Training from './components/Training';
+import Countdown from './components/Countdown';
 import './App.css';
 
 const TABS = [
   { id: 'tasks', label: 'Tasks & Bookings', component: Tasks },
   { id: 'flights', label: 'Flights', component: Flights },
+  { id: 'prices', label: 'Flight Prices', component: FlightPrices },
   { id: 'packing', label: 'Packing List', component: PackingList },
   { id: 'chat', label: 'Chat', component: Chat },
   { id: 'training', label: 'Training', component: Training },
@@ -42,6 +45,7 @@ function App() {
       </nav>
 
       <main className="main">
+        <Countdown />
         {ActiveComponent && <ActiveComponent />}
       </main>
     </div>
