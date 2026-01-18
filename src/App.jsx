@@ -1,24 +1,27 @@
 import { useState } from 'react';
+import Landing from './components/Landing';
+import Trekkers from './components/Trekkers';
 import Tasks from './components/Tasks';
 import Flights from './components/Flights';
 import FlightPrices from './components/FlightPrices';
 import PackingList from './components/PackingList';
 import Chat from './components/Chat';
 import Training from './components/Training';
-import Countdown from './components/Countdown';
 import './App.css';
 
 const TABS = [
-  { id: 'tasks', label: 'Tasks & Bookings', component: Tasks },
+  { id: 'home', label: 'Home', component: Landing },
+  { id: 'trekkers', label: 'Trekkers', component: Trekkers },
+  { id: 'tasks', label: 'Tasks', component: Tasks },
   { id: 'flights', label: 'Flights', component: Flights },
   { id: 'prices', label: 'Flight Prices', component: FlightPrices },
-  { id: 'packing', label: 'Packing List', component: PackingList },
+  { id: 'packing', label: 'Packing', component: PackingList },
   { id: 'chat', label: 'Chat', component: Chat },
   { id: 'training', label: 'Training', component: Training },
 ];
 
 function App() {
-  const [activeTab, setActiveTab] = useState('tasks');
+  const [activeTab, setActiveTab] = useState('home');
 
   const ActiveComponent = TABS.find((tab) => tab.id === activeTab)?.component;
 
@@ -45,7 +48,6 @@ function App() {
       </nav>
 
       <main className="main">
-        <Countdown />
         {ActiveComponent && <ActiveComponent />}
       </main>
     </div>

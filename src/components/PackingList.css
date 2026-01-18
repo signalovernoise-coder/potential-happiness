@@ -1,5 +1,78 @@
 .packing-list {
-  max-width: 900px;
+  max-width: 1200px;
+}
+
+.packing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.packing-user {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.packing-user strong {
+  color: var(--primary);
+}
+
+.user-selection {
+  max-width: 500px;
+  margin: 3rem auto;
+  text-align: center;
+  padding: 3rem;
+}
+
+.user-selection-subtitle {
+  color: var(--text-muted);
+  margin: 1rem 0 2rem 0;
+  line-height: 1.6;
+}
+
+.user-selection-form {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.user-selection-form .form-input {
+  flex: 1;
+  font-size: 1.1rem;
+  padding: 0.75rem 1rem;
+}
+
+.status-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--background);
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.legend-label {
+  font-size: 0.9rem;
+  color: var(--text);
+  font-weight: 500;
 }
 
 .add-item-form {
@@ -36,94 +109,124 @@
   border-bottom: 2px solid var(--border);
 }
 
-.items-list {
+.items-grid {
   display: grid;
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
 }
 
-.packing-item {
-  background: var(--background);
+.packing-item-grid {
+  background: white;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  transition: box-shadow 0.2s;
 }
 
-.item-header {
+.packing-item-grid:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.item-header-grid {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
 
-.item-name {
-  font-weight: 500;
+.item-name-grid {
+  font-size: 0.95rem;
   color: var(--text);
-}
-
-.status-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: white;
-}
-
-.status-success {
-  background: var(--success);
-}
-
-.status-info {
-  background: #3b82f6;
-}
-
-.status-warning {
-  background: var(--secondary);
-}
-
-.status-secondary {
-  background: #6b7280;
-}
-
-.item-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border);
-}
-
-.status-buttons {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.btn-status {
+  line-height: 1.4;
   flex: 1;
-  min-width: 70px;
 }
 
-.quick-actions {
-  margin-top: 0.5rem;
+.btn-icon-small {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
-.btn-info {
+.status-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.status-btn {
+  aspect-ratio: 1;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1.25rem;
+}
+
+.status-btn:hover {
+  background: var(--background);
+  transform: scale(1.05);
+}
+
+.status-btn.active {
+  border-width: 2px;
+  transform: scale(1.05);
+}
+
+.status-btn.active.status-success {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.status-btn.active.status-info {
   background: #3b82f6;
-  color: white;
+  border-color: #3b82f6;
 }
 
-.btn-info:hover {
-  background: #2563eb;
+.status-btn.active.status-warning {
+  background: var(--secondary);
+  border-color: var(--secondary);
+}
+
+.status-btn.active.status-secondary {
+  background: #6b7280;
+  border-color: #6b7280;
+}
+
+.status-emoji {
+  filter: grayscale(0.3);
+}
+
+.status-btn.active .status-emoji {
+  filter: grayscale(0);
+}
+
+.other-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+}
+
+.other-status-badge {
+  background: var(--background);
+  color: var(--text-muted);
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
 }
 
 .btn-sm {
@@ -140,7 +243,20 @@
     max-width: 100%;
   }
 
-  .item-actions {
+  .items-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .packing-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .user-selection {
+    padding: 2rem 1rem;
+  }
+
+  .user-selection-form {
     flex-direction: column;
   }
 }

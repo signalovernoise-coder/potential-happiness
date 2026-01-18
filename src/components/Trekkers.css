@@ -1,0 +1,261 @@
+.trekkers {
+  max-width: 1200px;
+}
+
+.trekkers-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.trekkers-subtitle {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+}
+
+.current-profile-banner {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(45, 80, 22, 0.2);
+}
+
+.current-profile-label {
+  font-weight: 500;
+}
+
+.current-profile-avatar {
+  font-size: 2rem;
+}
+
+.current-profile-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  flex: 1;
+}
+
+.current-profile-banner .btn {
+  color: var(--primary);
+  background: white;
+  border-color: white;
+}
+
+.current-profile-banner .btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.profile-form-card {
+  margin-bottom: 2rem;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.avatar-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 0.75rem;
+}
+
+.avatar-option {
+  width: 100%;
+  aspect-ratio: 1;
+  font-size: 2rem;
+  background: var(--background);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-option:hover {
+  background: white;
+  transform: scale(1.05);
+}
+
+.avatar-option.selected {
+  background: var(--primary);
+  border-color: var(--primary);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(45, 80, 22, 0.3);
+}
+
+.trekkers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.trekker-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.trekker-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.trekker-avatar-large {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  background: var(--background);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--primary);
+}
+
+.trekker-name {
+  font-size: 1.5rem;
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+}
+
+.trekker-badge {
+  background: var(--secondary);
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.trekker-reason {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--background);
+  border-radius: 8px;
+  text-align: left;
+  width: 100%;
+}
+
+.trekker-reason strong {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.trekker-reason p {
+  color: var(--text);
+  line-height: 1.6;
+  margin: 0;
+  font-style: italic;
+}
+
+.trekker-actions {
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+.btn-congrats {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--text);
+}
+
+.btn-congrats:hover:not(:disabled) {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(45, 80, 22, 0.2);
+}
+
+.btn-congrats.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.btn-congrats:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.congrats-icon {
+  font-size: 1.25rem;
+}
+
+.congrats-text {
+  font-weight: 600;
+}
+
+.congrats-list {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.congrats-from {
+  background: var(--success);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .trekkers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .avatar-selector {
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  }
+
+  .avatar-option {
+    font-size: 1.5rem;
+  }
+
+  .current-profile-banner {
+    flex-wrap: wrap;
+  }
+
+  .current-profile-name {
+    flex: 1 1 100%;
+    order: -1;
+    margin-bottom: 0.5rem;
+  }
+}
